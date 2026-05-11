@@ -337,6 +337,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <input type="text" name="username" placeholder="Username" required />
                 <input type="password" name="password" placeholder="Password" required />
                 <button class="action-btn">Login</button>
+                <div style="text-align: center; margin-top: 15px;">
+                    <a href="reset_pass.php" style="color: rgba(255,255,255,0.5); font-size: 0.8rem; text-decoration: none;">Forgot Password?</a>
+                </div>
             </form>
         </div>
 
