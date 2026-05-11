@@ -5,11 +5,12 @@
  * ============================================================
  */
 
-// Detect if we are on Vercel or Local
-$isLocal = in_array($_SERVER['SERVER_NAME'] ?? '', ['localhost', '127.0.0.1', '::1']);
+// Detect if we are on Vercel (Production) or Local (XAMPP)
+// We check for the VERCEL environment variable or the server name
+$isVercel = isset($_SERVER['VERCEL']) || (isset($_SERVER['SERVER_NAME']) && strpos($_SERVER['SERVER_NAME'], 'vercel.app') !== false);
 
-if ($isLocal) {
-    // LOCAL SETTINGS (MySQL for XAMPP)
+if (!$isVercel) {
+    // 🏠 LOCAL SETTINGS (MySQL for XAMPP)
     $host = 'localhost';
     $db   = 'faseeh_db';
     $user = 'root';
@@ -36,6 +37,9 @@ try {
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
-    die("<h2 style='color:red'>Database Connection Failed!</h2><br>" . $e->getMessage());
+    // Show a more helpful message if it fails
+    die("<h2 style='color:red'>Database Connection Failed!</h2>" . 
+        "<p>Current Environment: " . ($isVercel ? 'Vercel (Production)' : 'Localhost') . "</p>" .
+        "<p>Error: " . $e->getMessage() . "</p>");
 }
 ?>
