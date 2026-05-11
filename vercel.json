@@ -3,18 +3,21 @@
     "api/**/*.php": {
       "runtime": "vercel-php@0.7.1"
     },
-    "*.php": {
+    "index.php": {
+      "runtime": "vercel-php@0.7.1"
+    },
+    "login.php": {
+      "runtime": "vercel-php@0.7.1"
+    },
+    "register.php": {
+      "runtime": "vercel-php@0.7.1"
+    },
+    "dashboard.php": {
       "runtime": "vercel-php@0.7.1"
     }
   },
   "routes": [
-    {
-      "src": "/api/(.*).php",
-      "dest": "/api/$1.php"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/$1.php"
-    }
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/(.*)", "dest": "/$1" }
   ]
 }
