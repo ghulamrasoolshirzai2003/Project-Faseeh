@@ -2,9 +2,13 @@
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+
+// 1. Setup Database and Session Handler FIRST
+require 'includes/db.php';
+
+// 2. Configure and Start Session AFTER handler is set
 session_set_cookie_params(['path' => '/', 'samesite' => 'Lax']);
 session_start();
-require 'includes/db.php';
 
 // --- LOGOUT LOGIC ---
 if (isset($_GET['logout'])) { 
@@ -14,7 +18,7 @@ if (isset($_GET['logout'])) {
         $stmt->execute([$_SESSION['user_id']]);
     }
     session_destroy(); 
-    header("Location: index.php"); 
+    header("Location: /index.php"); 
     exit; 
 }
 
@@ -48,7 +52,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // --- LOGIN ---
     if ($action == 'login') {
-        $identifier = trim($_POST['username']); // We keep the name 'username' for the POST field or change it
+        $identifier = trim($_POST['username']); 
         $pass = $_POST['password'];
 
         // Support both Email and Username login (Case-Insensitive)
@@ -174,18 +178,15 @@ if (isset($_GET['reset']) && $_GET['reset'] == 'success') {
             justify-content: center;
             gap: 20px;
             margin-bottom: 35px;
-            /* Slight 3D tilt */
             transform: perspective(500px) rotateX(5deg);
         }
 
-        /* 1. The Pulsing Icon Aura */
         .logo-icon {
             width: 60px; height: 60px;
             background: linear-gradient(135deg, #f2994a, #f2c94c);
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             position: relative;
-            /* Intense Pulsing Glow Animation */
             animation: iconPulse 2s infinite ease-in-out;
         }
         
@@ -195,14 +196,12 @@ if (isset($_GET['reset']) && $_GET['reset'] == 'success') {
             100% { box-shadow: 0 0 15px rgba(242, 153, 74, 0.6); }
         }
 
-        /* 2. The Rotating Inner Ring */
         .logo-icon::after {
             content: ''; position: absolute;
             width: 48px; height: 48px;
-            border: 3px solid rgba(255,255,255,0.5); /* Brighter ring */
-            border-top-color: transparent; /* Makes it look like a C-ring */
+            border: 3px solid rgba(255,255,255,0.5); 
+            border-top-color: transparent; 
             border-radius: 50%;
-            /* Slow rotation animation */
             animation: spinSlow 8s linear infinite;
         }
         
@@ -217,7 +216,6 @@ if (isset($_GET['reset']) && $_GET['reset'] == 'success') {
             z-index: 2;
         }
 
-        /* 3. The Glowing Text */
         .logo-text h1 {
             font-family: 'Poppins', sans-serif; font-size: 2.2rem; font-weight: 900;
             margin: 0; line-height: 1;
@@ -225,7 +223,6 @@ if (isset($_GET['reset']) && $_GET['reset'] == 'success') {
             background-size: 200% auto;
             color: transparent;
             -webkit-background-clip: text; background-clip: text;
-            /* Faster shine + Pulsing text shadow */
             animation: shine 3s linear infinite, textGlowPulse 2s ease-in-out infinite;
         }
 
@@ -239,8 +236,6 @@ if (isset($_GET['reset']) && $_GET['reset'] == 'success') {
             font-size: 0.8rem; letter-spacing: 3px; text-transform: uppercase;
             color: rgba(255,255,255,0.8); display: block; margin-top: 5px; font-weight: 500;
         }
-
-        /* --- END LOGO CSS --- */
 
         .toggle-box {
             background: rgba(0,0,0,0.2);
