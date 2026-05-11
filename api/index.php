@@ -18,10 +18,10 @@ if (isset($_GET['logout'])) {
     exit; 
 }
 
-// --- SESSION CLEANER ---
+// --- SESSION CLEANER --- (Disabled to prevent ERR_TOO_MANY_REDIRECTS)
+/*
 if ($_SERVER["REQUEST_METHOD"] != "POST" && !isset($_GET['logout'])) {
     if(isset($_SESSION['user_id'])) {
-        // User is already logged in — send them to the dashboard
         if(isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
             header("Location: /admin_panel.php");
         } else {
@@ -29,6 +29,15 @@ if ($_SERVER["REQUEST_METHOD"] != "POST" && !isset($_GET['logout'])) {
         }
         exit;
     }
+}
+*/
+
+// DEBUG MODE (Add ?debug=1 to see session info)
+if (isset($_GET['debug'])) {
+    echo "<h3>Session Debug Info:</h3>";
+    echo "ID: " . session_id() . "<br>";
+    echo "Data: <pre>"; print_r($_SESSION); echo "</pre>";
+    exit;
 }
 
 $msg = "";
