@@ -1,7 +1,7 @@
 <?php
 /**
  * ============================================================
- * FASEEH — ELITE DATABASE CONNECTION (POSTGRES / NEON)
+ * FASEEH — ELITE DATABASE CONNECTION & SESSION MASTER
  * ============================================================
  */
 
@@ -64,11 +64,13 @@ try {
         $pdo->exec("CREATE TABLE IF NOT EXISTS $name ($schema)");
     }
 
-    // --- 🚀 DATABASE SESSION HANDLER ---
+    // --- 🚀 DATABASE SESSION MASTER (FIX FOR VERCEL) ---
     require_once __DIR__ . '/session_handler.php';
     if (session_status() === PHP_SESSION_NONE) {
+        session_set_cookie_params(['path' => '/', 'samesite' => 'Lax']);
         $handler = new DatabaseSessionHandler($pdo);
         session_set_save_handler($handler, true);
+        session_start();
     }
 
 } catch (PDOException $e) {

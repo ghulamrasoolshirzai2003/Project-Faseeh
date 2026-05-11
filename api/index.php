@@ -1,14 +1,5 @@
-<?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-// 1. Setup Database and Session Handler FIRST
+// 1. Load Database & Session Master
 require 'includes/db.php';
-
-// 2. Configure and Start Session AFTER handler is set
-session_set_cookie_params(['path' => '/', 'samesite' => 'Lax']);
-session_start();
 
 // --- LOGOUT LOGIC ---
 if (isset($_GET['logout'])) { 
