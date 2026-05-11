@@ -5,6 +5,9 @@
     }
   },
   "routes": [
+    { "src": "/", "dest": "/api/index.php" },
+    { "src": "/reset_db", "dest": "/api/reset_db.php" },
+    { "src": "/reset_pass", "dest": "/api/reset_pass.php" },
     { "src": "/(.*)", "dest": "/api/$1" }
   ]
 }
