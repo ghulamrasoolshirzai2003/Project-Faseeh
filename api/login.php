@@ -1,4 +1,5 @@
 <?php
+session_set_cookie_params(['path' => '/', 'samesite' => 'Lax']);
 session_start();
 require 'includes/db.php';
 
@@ -48,9 +49,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['role'] = $user['role'];
         
         if ($user['role'] == 'admin') {
-            header("Location: admin_panel.php");
+            header("Location: /admin_panel.php");
         } else {
-            header("Location: dashboard.php");
+            header("Location: /dashboard.php");
         }
         exit;
     } else {

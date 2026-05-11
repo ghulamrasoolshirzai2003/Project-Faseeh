@@ -1,14 +1,15 @@
 <?php
+session_set_cookie_params(['path' => '/', 'samesite' => 'Lax']);
 session_start();
 require 'includes/db.php';
 
 // --- SECURITY CHECKS ---
 if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
-    header("Location: admin_panel.php");
+    header("Location: /admin_panel.php");
     exit;
 }
 if (!isset($_SESSION['user_id'])) { 
-    header("Location: index.php"); 
+    header("Location: /"); 
     exit; 
 }
 

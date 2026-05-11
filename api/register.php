@@ -1,4 +1,5 @@
 <?php
+session_set_cookie_params(['path' => '/', 'samesite' => 'Lax']);
 session_start();
 // Hide raw SQL errors from the user's screen
 error_reporting(0); 
@@ -70,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $stmt_p->execute([$user_id]);
 
             $pdo->commit();
-            header("Location: login.php?registered=true");
+            header("Location: /login.php?registered=true");
             exit;
         }
     } catch (Throwable $e) {

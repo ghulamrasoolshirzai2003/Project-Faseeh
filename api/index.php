@@ -2,6 +2,7 @@
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+session_set_cookie_params(['path' => '/', 'samesite' => 'Lax']);
 session_start();
 require 'includes/db.php';
 
@@ -17,19 +18,20 @@ if (isset($_GET['logout'])) {
     exit; 
 }
 
-// --- SESSION CLEANER ---
-// Only reset if user is NOT logged in (redirect logged-in users to dashboard)
+// --- SESSION CLEANER --- (Disabled temporarily to break redirect loop)
+/*
 if ($_SERVER["REQUEST_METHOD"] != "POST" && !isset($_GET['logout'])) {
     if(isset($_SESSION['user_id'])) {
         // User is already logged in — send them to the dashboard
         if(isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
-            header("Location: admin_panel.php");
+            header("Location: /admin_panel.php");
         } else {
-            header("Location: level_select.php");
+            header("Location: /level_select.php");
         }
         exit;
     }
 }
+*/
 
 $msg = "";
 $initialView = "login"; 
@@ -55,8 +57,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // ONLINE
             $pdo->prepare("UPDATE progress SET last_active = NOW() WHERE user_id = ?")->execute([$row['id']]);
 
-            if($row['role'] == 'admin') header("Location: admin_panel.php");
-            else header("Location: level_select.php");
+            if($row['role'] == 'admin') header("Location: /admin_panel.php");
+            else header("Location: /level_select.php");
             exit;
         } else {
             $msg = "❌ Incorrect Credentials";
@@ -90,7 +92,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['role'] = 'student';
                 $_SESSION['level'] = $level;
                 
-                header("Location: level_select.php");
+                header("Location: /level_select.php");
                 exit;
             } catch(PDOException $e) {
                 if (strpos($e->getMessage(), '1062') !== false || strpos($e->getMessage(), 'Duplicate') !== false) {
