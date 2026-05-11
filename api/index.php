@@ -39,11 +39,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // --- LOGIN ---
     if ($action == 'login') {
-        $user = trim($_POST['username']);
+        $identifier = trim($_POST['username']); // We keep the name 'username' for the POST field or change it
         $pass = $_POST['password'];
 
-        $stmt = $pdo->prepare("SELECT * FROM users WHERE username=?");
-        $stmt->execute([$user]);
+        // Support both Email and Username login
+        $stmt = $pdo->prepare("SELECT * FROM users WHERE username=? OR email=?");
+        $stmt->execute([$identifier, $identifier]);
         $row = $stmt->fetch();
 
         if ($row && password_verify($pass, $row['password'])) {
@@ -334,7 +335,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div id="form-login" class="form-group active">
             <form method="POST">
                 <input type="hidden" name="action" value="login">
-                <input type="text" name="username" placeholder="Username" required />
+                <input type="text" name="username" placeholder="Username or Email" required />
                 <input type="password" name="password" placeholder="Password" required />
                 <button class="action-btn">Login</button>
                 <div style="text-align: center; margin-top: 15px;">

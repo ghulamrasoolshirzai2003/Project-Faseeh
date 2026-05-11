@@ -7,7 +7,7 @@
 
 // If we are NOT on localhost, we are on the LIVE server (Neon)
 $hostName = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'unknown';
-$isLocal = ($hostName === 'localhost' || $hostName === '127.0.0.1' || strpos($hostName, '192.168.') !== false);
+$isLocal = str_contains($hostName, 'localhost') || str_contains($hostName, '127.0.0.1') || str_contains($hostName, '192.168.');
 
 if ($isLocal) {
     // 🏠 LOCAL SETTINGS (MySQL for XAMPP)
