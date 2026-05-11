@@ -5,11 +5,11 @@
  * ============================================================
  */
 
-// Detect if we are on Vercel (Production) or Local (XAMPP)
-// We check for the VERCEL environment variable or the server name
-$isVercel = isset($_SERVER['VERCEL']) || (isset($_SERVER['SERVER_NAME']) && strpos($_SERVER['SERVER_NAME'], 'vercel.app') !== false);
+// If we are NOT on localhost, we are on the LIVE server (Neon)
+$hostName = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'unknown';
+$isLocal = ($hostName === 'localhost' || $hostName === '127.0.0.1' || strpos($hostName, '192.168.') !== false);
 
-if (!$isVercel) {
+if ($isLocal) {
     // 🏠 LOCAL SETTINGS (MySQL for XAMPP)
     $host = 'localhost';
     $db   = 'faseeh_db';
@@ -18,6 +18,7 @@ if (!$isVercel) {
     $driver = 'mysql';
 } else {
     // 🌍 LIVE SETTINGS (Neon Postgres for Vercel)
+    // We FORCE this for anything that isn't localhost
     $host = 'ep-restless-frog-aovh263w-pooler.c-2.ap-southeast-1.aws.neon.tech';
     $db   = 'neondb';
     $user = 'neondb_owner';
@@ -37,9 +38,9 @@ try {
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
-    // Show a more helpful message if it fails
     die("<h2 style='color:red'>Database Connection Failed!</h2>" . 
-        "<p>Current Environment: " . ($isVercel ? 'Vercel (Production)' : 'Localhost') . "</p>" .
+        "<p>Server Host: <b>$hostName</b></p>" .
+        "<p>Target Driver: <b>$driver</b></p>" .
         "<p>Error: " . $e->getMessage() . "</p>");
 }
 ?>
