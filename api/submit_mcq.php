@@ -66,7 +66,12 @@ try {
             // Add to spaced repetition queue
             $today = date('Y-m-d');
             $nextReview = date('Y-m-d', strtotime('+1 day'));
-            $pdo->prepare("INSERT INTO review_queue (user_id, word_id, next_review, last_reviewed) VALUES (?, ?, ?, NOW()) ON DUPLICATE KEY UPDATE repetitions = repetitions + 1, interval_days = LEAST(interval_days * 2, 30), next_review = DATE_ADD(CURDATE(), INTERVAL LEAST(interval_days * 2, 30) DAY), last_reviewed = NOW()")
+            $pdo->prepare("INSERT INTO review_queue (user_id, word_id, next_review, last_reviewed) VALUES (?, ?, ?, NOW()) 
+                           ON CONFLICT (user_id, word_id) DO UPDATE SET 
+                           repetitions = review_queue.repetitions + 1, 
+                           interval_days = LEAST(review_queue.interval_days * 2, 30), 
+                           next_review = CURRENT_DATE + (LEAST(review_queue.interval_days * 2, 30) * INTERVAL '1 day'), 
+                           last_reviewed = NOW()")
                 ->execute([$uid, $wordId, $nextReview]);
         }
     } else {
@@ -79,7 +84,12 @@ try {
         // Wrong answer — schedule sooner review
         if ($wordId > 0) {
             $nextReview = date('Y-m-d', strtotime('+1 day'));
-            $pdo->prepare("INSERT INTO review_queue (user_id, word_id, next_review, ease_factor, interval_days) VALUES (?, ?, ?, 1.50, 1) ON DUPLICATE KEY UPDATE ease_factor = GREATEST(1.30, ease_factor - 0.20), interval_days = 1, next_review = ?, last_reviewed = NOW()")
+            $pdo->prepare("INSERT INTO review_queue (user_id, word_id, next_review, ease_factor, interval_days) VALUES (?, ?, ?, 1.50, 1) 
+                           ON CONFLICT (user_id, word_id) DO UPDATE SET 
+                           ease_factor = GREATEST(1.30, review_queue.ease_factor - 0.20), 
+                           interval_days = 1, 
+                           next_review = ?, 
+                           last_reviewed = NOW()")
                 ->execute([$uid, $wordId, $nextReview, $nextReview]);
         }
     }
@@ -103,7 +113,7 @@ try {
     }
 
     // Update daily goal
-    $pdo->prepare("INSERT INTO daily_goals (user_id, goal_date, words_completed, xp_earned) VALUES (?, ?, 1, ?) ON DUPLICATE KEY UPDATE words_completed = words_completed + 1, xp_earned = xp_earned + ?")
+    $pdo->prepare("INSERT INTO daily_goals (user_id, goal_date, words_completed, xp_earned) VALUES (?, ?, 1, ?) ON CONFLICT (user_id, goal_date) DO UPDATE SET words_completed = daily_goals.words_completed + 1, xp_earned = daily_goals.xp_earned + ?")
         ->execute([$uid, $today, max(0, $scoreChange), max(0, $scoreChange)]);
 
     // Check if daily goal completed

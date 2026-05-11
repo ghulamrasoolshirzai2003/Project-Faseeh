@@ -59,7 +59,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (!$stmt->execute([$full_name, $username, $email, $password])) {
                 throw new Exception("Insert failed");
             }
-            $user_id = $pdo->lastInsertId();
+            
+            // Fix for Postgres lastInsertId requirement
+            $user_id = ($pdo->getAttribute(PDO::ATTR_DRIVER_NAME) == 'pgsql') 
+                ? $pdo->lastInsertId('users_id_seq') 
+                : $pdo->lastInsertId();
 
             // 2. Initialize Progress Record
             $stmt_p = $pdo->prepare("INSERT INTO progress (user_id, total_score, xp, current_streak, daily_streak) VALUES (?, 0, 0, 0, 0)");

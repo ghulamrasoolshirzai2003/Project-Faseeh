@@ -79,7 +79,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             try {
                 $stmt = $pdo->prepare("INSERT INTO users (full_name, username, email, password, selected_level, role) VALUES (?,?,?,?,?,'student')");
                 $stmt->execute([$name, $user, $email, $pass, $level]);
-                $newId = $pdo->lastInsertId();
+                $newId = ($pdo->getAttribute(PDO::ATTR_DRIVER_NAME) == 'pgsql') 
+                    ? $pdo->lastInsertId('users_id_seq') 
+                    : $pdo->lastInsertId();
                 $pdo->prepare("INSERT INTO progress (user_id, total_score, xp, current_streak, daily_streak) VALUES (?, 0, 0, 0, 0)")->execute([$newId]);
 
                 $_SESSION['user_id'] = $newId;
