@@ -1,11 +1,10 @@
 <?php
+require 'includes/db.php';
 session_set_cookie_params(['path' => '/', 'samesite' => 'Lax']);
 session_start();
 // Hide raw SQL errors from the user's screen
 error_reporting(0); 
 ini_set('display_errors', 0);
-
-require 'includes/db.php';
 
 if (!isset($_SESSION['lang'])) { 
     $_SESSION['lang'] = 'en'; 

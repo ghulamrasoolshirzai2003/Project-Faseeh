@@ -1,6 +1,6 @@
 -- 1. DROP OLD TABLES (Start Fresh)
 SET FOREIGN_KEY_CHECKS = 0;
-DROP TABLE IF EXISTS `game_sessions`, `review_queue`, `daily_goals`, `user_achievements`, `achievements`, `user_progress`, `progress`, `words`, `users`;
+DROP TABLE IF EXISTS `sessions`, `game_sessions`, `review_queue`, `daily_goals`, `user_achievements`, `achievements`, `user_progress`, `progress`, `words`, `users`;
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- 2. USERS TABLE

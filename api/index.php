@@ -2,9 +2,9 @@
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+require 'includes/db.php';
 session_set_cookie_params(['path' => '/', 'samesite' => 'Lax']);
 session_start();
-require 'includes/db.php';
 
 // --- LOGOUT LOGIC ---
 if (isset($_GET['logout'])) { 
@@ -18,8 +18,7 @@ if (isset($_GET['logout'])) {
     exit; 
 }
 
-// --- SESSION CLEANER --- (Disabled temporarily to break redirect loop)
-/*
+// --- SESSION CLEANER ---
 if ($_SERVER["REQUEST_METHOD"] != "POST" && !isset($_GET['logout'])) {
     if(isset($_SESSION['user_id'])) {
         // User is already logged in — send them to the dashboard
@@ -31,7 +30,6 @@ if ($_SERVER["REQUEST_METHOD"] != "POST" && !isset($_GET['logout'])) {
         exit;
     }
 }
-*/
 
 $msg = "";
 $initialView = "login"; 
