@@ -2,9 +2,9 @@
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-require 'includes/db.php';
 session_set_cookie_params(['path' => '/', 'samesite' => 'Lax']);
 session_start();
+require 'includes/db.php';
 
 // --- LOGOUT LOGIC ---
 if (isset($_GET['logout'])) { 
