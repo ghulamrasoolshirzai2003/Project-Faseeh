@@ -18,18 +18,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['email'])) {
         $msg = "❌ Please fill in both fields.";
         $type = "error";
     } else {
-        // Check if user exists
-        $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
+        // Check if user exists (Case-Insensitive)
+        $stmt = $pdo->prepare("SELECT id FROM users WHERE LOWER(email) = LOWER(?)");
         $stmt->execute([$email]);
         if ($stmt->fetch()) {
             // Instant Reset
             $hashed = password_hash($newPass, PASSWORD_DEFAULT);
-            $update = $pdo->prepare("UPDATE users SET password = ? WHERE email = ?");
+            $update = $pdo->prepare("UPDATE users SET password = ? WHERE LOWER(email) = LOWER(?)");
             $update->execute([$hashed, $email]);
             
             $msg = "✅ Password Updated! Redirecting to login...";
             $type = "success";
-            header("refresh:2;url=index.php");
+            header("Location: index.php?reset=success");
+            exit;
         } else {
             $msg = "❌ No account found with that email.";
             $type = "error";

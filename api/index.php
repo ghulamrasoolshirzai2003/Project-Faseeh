@@ -42,8 +42,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $identifier = trim($_POST['username']); // We keep the name 'username' for the POST field or change it
         $pass = $_POST['password'];
 
-        // Support both Email and Username login
-        $stmt = $pdo->prepare("SELECT * FROM users WHERE username=? OR email=?");
+        // Support both Email and Username login (Case-Insensitive)
+        $stmt = $pdo->prepare("SELECT * FROM users WHERE LOWER(username) = LOWER(?) OR LOWER(email) = LOWER(?)");
         $stmt->execute([$identifier, $identifier]);
         $row = $stmt->fetch();
 
@@ -71,7 +71,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $level = $_POST['level'];
         $pass  = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
-        $check = $pdo->prepare("SELECT id FROM users WHERE username=? OR email=?");
+        $check = $pdo->prepare("SELECT id FROM users WHERE LOWER(username) = LOWER(?) OR LOWER(email) = LOWER(?)");
         $check->execute([$user, $email]);
         if($check->rowCount() > 0) {
             $msg = "❌ Username or Email already exists!";
@@ -102,6 +102,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         }
     }
+}
+
+// Success message handling
+$success_msg = "";
+if (isset($_GET['reset']) && $_GET['reset'] == 'success') {
+    $success_msg = "✅ Password reset successfully! Please login with your new password.";
 }
 ?>
 <!DOCTYPE html>
@@ -307,6 +313,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
         button.action-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(242, 153, 74, 0.5); }
         .error-msg { background: rgba(231, 76, 60, 0.8); border-radius: 10px; padding: 10px; color: white; font-size: 0.85rem; margin-bottom: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.2); }
+        .success-msg { background: rgba(46, 204, 113, 0.8); border-radius: 10px; padding: 10px; color: white; font-size: 0.85rem; margin-bottom: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.2); }
         .container::-webkit-scrollbar { width: 6px; }
         .container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
     </style>
@@ -325,6 +332,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
 
         <?php if($msg) echo "<div class='error-msg'>$msg</div>"; ?>
+        <?php if($success_msg) echo "<div class='success-msg'>$success_msg</div>"; ?>
 
         <div class="toggle-box">
             <div class="slider" id="slider"></div>
