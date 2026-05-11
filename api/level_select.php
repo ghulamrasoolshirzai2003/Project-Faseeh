@@ -4,12 +4,20 @@ session_start();
 require 'includes/db.php';
 
 // --- SECURITY CHECKS ---
+// --- SECURITY CHECKS ---
 if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
     header("Location: /admin_panel.php");
     exit;
 }
 if (!isset($_SESSION['user_id'])) { 
-    header("Location: /"); 
+    echo "<div style='background: #1e1e2e; color: white; padding: 30px; font-family: sans-serif; border-radius: 10px; margin: 50px auto; max-width: 600px; border: 1px solid #f2994a;'>";
+    echo "<h2 style='color: #f2994a;'>🚫 Session Access Denied</h2>";
+    echo "<p>Your session could not be verified. This usually happens if cookies are blocked or the session expired.</p>";
+    echo "<hr style='border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;'>";
+    echo "<strong>Session ID:</strong> <code>" . session_id() . "</code><br><br>";
+    echo "<strong>Session Data:</strong> <pre style='background: rgba(0,0,0,0.3); padding: 15px; border-radius: 5px;'>" . print_r($_SESSION, true) . "</pre>";
+    echo "<br><a href='/' style='background: #f2994a; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;'>Return to Login</a>";
+    echo "</div>";
     exit; 
 }
 
