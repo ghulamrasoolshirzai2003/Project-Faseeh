@@ -37,23 +37,37 @@ try {
         $dsn = "mysql:host=$host;port=$port;dbname=$db;charset=utf8mb4";
     }
     
-    // Debug point 1
-    // echo "<!-- DEBUG: Connecting to $host... -->";
-    
     $pdo = new PDO($dsn, $user, $pass, [
-        PDO::ATTR_TIMEOUT => 5, // Fast timeout for debugging
+        PDO::ATTR_TIMEOUT => 5, 
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
     ]);
     
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
-    // --- 🚀 SESSION HANDLER ---
-    // Temporarily disabled custom handler to rule out issues
-    /*
+    // --- 🚀 AUTOMATIC TABLE VERIFICATION (FUNDAMENTAL FIX) ---
+    $tables = [
+        "sessions" => ($driver === 'pgsql') 
+            ? "id VARCHAR(128) NOT NULL PRIMARY KEY, data TEXT NOT NULL, last_access INTEGER NOT NULL"
+            : "`id` varchar(128) NOT NULL, `data` text NOT NULL, `last_access` int(11) NOT NULL, PRIMARY KEY (`id`)",
+        "users" => ($driver === 'pgsql')
+            ? "id SERIAL PRIMARY KEY, full_name VARCHAR(100), username VARCHAR(50) NOT NULL UNIQUE, email VARCHAR(100) NOT NULL UNIQUE, password VARCHAR(255) NOT NULL, selected_level VARCHAR(20) DEFAULT 'beginner', role VARCHAR(20) DEFAULT 'student', created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
+            : "id int(11) NOT NULL AUTO_INCREMENT, full_name varchar(100), username varchar(50) NOT NULL UNIQUE, email varchar(100) NOT NULL UNIQUE, password varchar(255) NOT NULL, selected_level varchar(20) DEFAULT 'beginner', role varchar(20) DEFAULT 'student', created_at timestamp DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (id)",
+        "words" => ($driver === 'pgsql')
+            ? "id SERIAL PRIMARY KEY, arabic_word VARCHAR(100) NOT NULL, meaning_en VARCHAR(200) NOT NULL, meaning_my VARCHAR(200), root VARCHAR(50), level VARCHAR(20) DEFAULT 'beginner', category VARCHAR(50) DEFAULT 'general', audio_file VARCHAR(100)"
+            : "id int(11) NOT NULL AUTO_INCREMENT, arabic_word varchar(100) NOT NULL, meaning_en varchar(200) NOT NULL, meaning_my varchar(200), root varchar(50), level varchar(20) DEFAULT 'beginner', category varchar(50) DEFAULT 'general', audio_file varchar(100), PRIMARY KEY (id)",
+        "progress" => ($driver === 'pgsql')
+            ? "id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id) ON DELETE CASCADE, total_score INTEGER DEFAULT 0, xp INTEGER DEFAULT 0, current_streak INTEGER DEFAULT 0, daily_streak INTEGER DEFAULT 0, longest_streak INTEGER DEFAULT 0, last_active TIMESTAMP, last_play_date DATE, wins INTEGER DEFAULT 0, losses INTEGER DEFAULT 0"
+            : "id int(11) NOT NULL AUTO_INCREMENT, user_id int(11) NOT NULL, total_score int(11) DEFAULT 0, xp int(11) DEFAULT 0, current_streak int(11) DEFAULT 0, daily_streak int(11) DEFAULT 0, longest_streak int(11) DEFAULT 0, last_active datetime, last_play_date date, wins int(11) DEFAULT 0, losses int(11) DEFAULT 0, PRIMARY KEY (id), FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE"
+    ];
+
+    foreach ($tables as $name => $schema) {
+        $pdo->exec("CREATE TABLE IF NOT EXISTS $name ($schema)");
+    }
+
+    // --- 🚀 DATABASE SESSION HANDLER ---
     require_once __DIR__ . '/session_handler.php';
     $handler = new DatabaseSessionHandler($pdo);
     session_set_save_handler($handler, true);
-    */
 
 } catch (PDOException $e) {
     die("<h2 style='color:red'>Database Connection Failed!</h2>" . 
