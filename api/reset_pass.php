@@ -1,7 +1,7 @@
 <?php
 session_start();
-// Hide warnings from the screen
-error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED); 
+// --- THE MASTER SHIELD ---
+error_reporting(0); 
 ini_set('display_errors', 0);
 
 require 'includes/db.php';
@@ -9,8 +9,9 @@ require 'includes/db.php';
 $msg = "";
 $type = "info";
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = trim($_POST['email'] ?? '');
+// Only run this if the user actually clicked the button
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['email'])) {
+    $email = trim($_POST['email']);
     $newPass = $_POST['new_password'] ?? '';
     
     if (empty($email) || empty($newPass)) {
