@@ -8,14 +8,6 @@
     { "src": "/", "dest": "/api/index.php" },
     { "src": "/reset_db", "dest": "/api/reset_db.php" },
     { "src": "/reset_pass", "dest": "/api/reset_pass.php" },
-    { "src": "/force_setup", "dest": "/api/force_setup.php" },
-    { "src": "/database_hard_reset", "dest": "/api/database_hard_reset.php" },
-    { "src": "/level_select", "dest": "/api/level_select.php" },
-    { "src": "/dashboard", "dest": "/api/dashboard.php" },
-    { "src": "/profile", "dest": "/api/profile.php" },
-    { "src": "/leaderboard", "dest": "/api/leaderboard.php" },
-    { "src": "/academy", "dest": "/api/academy.php" },
-    { "src": "/game", "dest": "/api/game.php" },
     { "src": "/(.*)", "dest": "/api/$1" }
   ]
 }
