@@ -1,10 +1,8 @@
 <?php
-session_start();
+require 'includes/db.php';
 // --- THE MASTER SHIELD ---
 error_reporting(0); 
 ini_set('display_errors', 0);
-
-require 'includes/db.php';
 
 $msg = "";
 $type = "info";

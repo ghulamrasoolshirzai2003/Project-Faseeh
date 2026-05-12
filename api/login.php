@@ -1,7 +1,5 @@
 <?php
 require 'includes/db.php';
-session_set_cookie_params(['path' => '/', 'samesite' => 'Lax']);
-session_start();
 
 if (!isset($_SESSION['lang'])) { 
     $_SESSION['lang'] = 'en'; 

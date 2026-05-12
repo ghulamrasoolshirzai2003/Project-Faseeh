@@ -1,3 +1,4 @@
+<?php
 // 1. Load Database & Session Master
 require 'includes/db.php';
 
