@@ -1,5 +1,5 @@
 <?php
-// 1. Load Database & Session Master
+// 1. Load Database & Session Master (v1.0.2 - Fresh Deployment)
 require 'includes/db.php';
 
 // --- LOGOUT LOGIC ---
