@@ -1,0 +1,28 @@
+/* assets/css/main.css */
+/* Centralized CSS variables for Faseeh Academy */
+
+:root {
+    /* Background Gradients */
+    --bg-start: #0f0c29;
+    --bg-mid: #302b63;
+    --bg-end: #24243e;
+    
+    /* Legacy aliases for backward compatibility */
+    --bg-dark: #0f0c29;
+    --bg-light: #24243e;
+    --bg: #0f0c29;
+    
+    /* Brand Colors */
+    --accent: #f2994a;
+    --accent2: #f2c94c;
+    --gold: #FFD700;
+    
+    /* Status Colors */
+    --success: #2ecc71;
+    --danger: #e74c3c;
+    --info: #3498db;
+    
+    /* UI Elements */
+    --glass: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+}

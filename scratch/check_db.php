@@ -1,11 +1,14 @@
 <?php
 require 'includes/db.php';
-header('Content-Type: application/json');
-
 try {
-    $stmt = $pdo->query("DESCRIBE progress");
-    $columns = $stmt->fetchAll();
-    echo json_encode($columns, JSON_PRETTY_PRINT);
+    $stmt = $pdo->query("SHOW TABLES LIKE 'sentence_builder'");
+    if($stmt->fetch()) {
+        $count = $pdo->query("SELECT COUNT(*) FROM sentence_builder")->fetchColumn();
+        echo "TABLE EXISTS: $count rows";
+    } else {
+        echo "TABLE MISSING";
+    }
 } catch (Exception $e) {
-    echo json_encode(['error' => $e->getMessage()]);
+    echo "Error: " . $e->getMessage();
 }
+?>

@@ -25,10 +25,10 @@ $lang = $_SESSION['lang'] ?? 'en';
 
 try {
     // This query selects a word that is in the correct level 
-    // AND has NOT been recorded in the user_progress table for this user.
+    // AND has NOT been recorded in the user_solved_words table for this user.
     $sql = "SELECT * FROM words 
             WHERE level = ? 
-            AND id NOT IN (SELECT word_id FROM user_progress WHERE user_id = ?)
+            AND id NOT IN (SELECT word_id FROM user_solved_words WHERE user_id = ?)
             ORDER BY RAND() 
             LIMIT 1";
             

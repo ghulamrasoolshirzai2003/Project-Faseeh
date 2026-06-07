@@ -17,7 +17,7 @@ $points = $data['points'] ?? 10;
 try {
     // 1. Log that the user saw/answered this question to prevent repeats
     if ($mode && $questionId) {
-        $stmt = $pdo->prepare("INSERT INTO user_answered (user_id, mode, question_id) VALUES (?, ?, ?) ON CONFLICT DO NOTHING");
+        $stmt = $pdo->prepare("INSERT IGNORE INTO user_answered (user_id, mode, question_id) VALUES (?, ?, ?)");
         $stmt->execute([$userId, $mode, $questionId]);
     }
 
@@ -54,11 +54,11 @@ try {
         $stmt->execute([$points, $points, $userId]);
 
         // Update Academic Report
-        $stmt = $pdo->prepare("INSERT INTO academic_stats (user_id, mode, correct_answers) VALUES (?, ?, 1) ON CONFLICT (user_id, mode) DO UPDATE SET correct_answers = academic_stats.correct_answers + 1");
+        $stmt = $pdo->prepare("INSERT INTO academic_stats (user_id, mode, correct_answers) VALUES (?, ?, 1) ON DUPLICATE KEY UPDATE correct_answers = correct_answers + 1");
         $stmt->execute([$userId, $mode]);
 
         // Update Daily Goal
-        $pdo->prepare("INSERT INTO daily_goals (user_id, goal_date, words_completed, xp_earned) VALUES (?, ?, 1, ?) ON CONFLICT (user_id, goal_date) DO UPDATE SET words_completed = daily_goals.words_completed + 1, xp_earned = daily_goals.xp_earned + ?")
+        $pdo->prepare("INSERT INTO daily_goals (user_id, goal_date, words_completed, xp_earned) VALUES (?, ?, 1, ?) ON DUPLICATE KEY UPDATE words_completed = words_completed + 1, xp_earned = xp_earned + ?")
             ->execute([$userId, $today, $points, $points]);
     } else {
         // Update Accuracy (Total only) even for wrong answers
@@ -66,7 +66,7 @@ try {
         $stmt->execute([$userId]);
 
         // Update Academic Report
-        $stmt = $pdo->prepare("INSERT INTO academic_stats (user_id, mode, wrong_answers) VALUES (?, ?, 1) ON CONFLICT (user_id, mode) DO UPDATE SET wrong_answers = academic_stats.wrong_answers + 1");
+        $stmt = $pdo->prepare("INSERT INTO academic_stats (user_id, mode, wrong_answers) VALUES (?, ?, 1) ON DUPLICATE KEY UPDATE wrong_answers = wrong_answers + 1");
         $stmt->execute([$userId, $mode]);
     }
 

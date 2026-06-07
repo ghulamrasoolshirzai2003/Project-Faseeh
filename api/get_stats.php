@@ -30,14 +30,14 @@ try {
     }
 
     // 2. Words learned count
-    $stmt = $pdo->prepare("SELECT COUNT(*) as cnt FROM user_progress WHERE user_id = ?");
+    $stmt = $pdo->prepare("SELECT COUNT(*) as cnt FROM user_solved_words WHERE user_id = ?");
     $stmt->execute([$uid]);
     $wordsLearned = $stmt->fetch()['cnt'] ?? 0;
 
     // 3. Total words available per level
     $stmt = $pdo->prepare("
         SELECT level, COUNT(*) as total,
-               (SELECT COUNT(*) FROM user_progress up 
+               (SELECT COUNT(*) FROM user_solved_words up 
                 JOIN words w2 ON up.word_id = w2.id 
                 WHERE up.user_id = ? AND w2.level = words.level) as completed
         FROM words 

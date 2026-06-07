@@ -5,6 +5,7 @@
  */
 session_start();
 require '../includes/db.php';
+require_once '../includes/progress.php';
 header('Content-Type: application/json');
 
 if (!isset($_SESSION['user_id'])) {
@@ -27,7 +28,7 @@ try {
     }
 
     // Get words learned count
-    $stmt = $pdo->prepare("SELECT COUNT(*) as cnt FROM user_progress WHERE user_id = ?");
+    $stmt = $pdo->prepare("SELECT COUNT(*) as cnt FROM user_solved_words WHERE user_id = ?");
     $stmt->execute([$uid]);
     $wordsLearned = $stmt->fetch()['cnt'] ?? 0;
 
@@ -72,8 +73,7 @@ try {
                 ->execute([$uid, $ach['id']]);
             
             // Award XP
-            $pdo->prepare("UPDATE progress SET xp = xp + ? WHERE user_id = ?")
-                ->execute([$ach['xp_reward'], $uid]);
+            saveUserProgress($pdo, $uid, $ach['xp_reward'], 'general');
 
             $newlyUnlocked[] = [
                 'slug' => $ach['slug'],

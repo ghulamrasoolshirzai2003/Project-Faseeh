@@ -11,6 +11,7 @@ if (!file_exists($dbPath)) {
     exit;
 }
 require_once $dbPath;
+require_once __DIR__ . '/../includes/achievement_checker.php';
 
 header('Content-Type: application/json');
 
@@ -87,10 +88,10 @@ try {
         // --- THE FIX FOR REPEATING WORDS ---
         if ($word_id > 0) {
             try {
-                $check = $pdo->prepare("SELECT id FROM user_progress WHERE user_id=? AND word_id=?");
+                $check = $pdo->prepare("SELECT id FROM user_solved_words WHERE user_id=? AND word_id=?");
                 $check->execute([$uid, $word_id]);
                 if ($check->rowCount() == 0) {
-                    $pdo->prepare("INSERT INTO user_progress (user_id, word_id, solved_at) VALUES (?, ?, NOW())")
+                    $pdo->prepare("INSERT INTO user_solved_words (user_id, word_id, solved_at) VALUES (?, ?, NOW())")
                         ->execute([$uid, $word_id]);
                 }
 
@@ -102,11 +103,8 @@ try {
                 // Add to spaced repetition queue
                 $nextReview = date('Y-m-d', strtotime('+1 day'));
                 $pdo->prepare("INSERT INTO review_queue (user_id, word_id, next_review, last_reviewed) VALUES (?, ?, ?, NOW()) 
-                               ON CONFLICT (user_id, word_id) DO UPDATE SET 
-                               repetitions = review_queue.repetitions + 1, 
-                               interval_days = LEAST(review_queue.interval_days * 2, 30), 
-                               next_review = CURRENT_DATE + (LEAST(review_queue.interval_days * 2, 30) * INTERVAL '1 day'), 
-                               last_reviewed = NOW()")
+                               ON DUPLICATE KEY UPDATE repetitions = repetitions + 1, interval_days = LEAST(interval_days * 2, 30), 
+                               next_review = DATE_ADD(CURDATE(), INTERVAL LEAST(interval_days * 2, 30) DAY), last_reviewed = NOW()")
                     ->execute([$uid, $word_id, $nextReview]);
             } catch(Exception $e) {}
         }
@@ -122,13 +120,9 @@ try {
             try {
                 $pdo->exec("ALTER TABLE review_queue ADD COLUMN IF NOT EXISTS last_reviewed TIMESTAMP NULL");
                 $nextReview = date('Y-m-d', strtotime('+1 day'));
-                $nextReview = date('Y-m-d', strtotime('+1 day'));
                 $pdo->prepare("INSERT INTO review_queue (user_id, word_id, next_review, ease_factor, interval_days) VALUES (?, ?, ?, 1.50, 1) 
-                               ON CONFLICT (user_id, word_id) DO UPDATE SET 
-                               ease_factor = GREATEST(1.30, review_queue.ease_factor - 0.20), 
-                               interval_days = 1, 
-                               next_review = ?, 
-                               last_reviewed = NOW()")
+                               ON DUPLICATE KEY UPDATE ease_factor = GREATEST(1.30, ease_factor - 0.20), interval_days = 1, 
+                               next_review = ?, last_reviewed = NOW()")
                     ->execute([$uid, $word_id, $nextReview, $nextReview]);
             } catch(Exception $e) {}
         }
@@ -157,7 +151,7 @@ try {
         // Self-heal: ensure xp_earned column exists
         $pdo->exec("ALTER TABLE daily_goals ADD COLUMN IF NOT EXISTS xp_earned INT DEFAULT 0");
         
-        $pdo->prepare("INSERT INTO daily_goals (user_id, goal_date, words_completed, xp_earned) VALUES (?, ?, 1, ?) ON CONFLICT (user_id, goal_date) DO UPDATE SET words_completed = daily_goals.words_completed + 1, xp_earned = daily_goals.xp_earned + ?")
+        $pdo->prepare("INSERT INTO daily_goals (user_id, goal_date, words_completed, xp_earned) VALUES (?, ?, 1, ?) ON DUPLICATE KEY UPDATE words_completed = words_completed + 1, xp_earned = xp_earned + ?")
             ->execute([$uid, $today, max(0, $scoreChange), max(0, $scoreChange)]);
 
         $stmt = $pdo->prepare("SELECT * FROM daily_goals WHERE user_id = ? AND goal_date = ?");
@@ -172,11 +166,11 @@ try {
 
     // 6. SAVE TO DATABASE (Simplified for reliability)
     $stmt = $pdo->prepare("UPDATE progress SET 
-        total_score = ?, wins = ?, losses = ?, current_streak = ?, daily_streak = ?, 
+        total_score = ?, xp = ?, wins = ?, losses = ?, current_streak = ?, daily_streak = ?, 
         attempts = attempts + 1, last_active = NOW(), last_play_date = ? 
         WHERE user_id = ?");
     
-    $success = $stmt->execute([$score, $wins, $losses, $streak, $dailyStreak, $today, $uid]);
+    $success = $stmt->execute([$score, $xp, $wins, $losses, $streak, $dailyStreak, $today, $uid]);
 
     if (!$success) {
         echo json_encode(['status' => 'error', 'message' => 'Database update returned false']);
@@ -187,16 +181,20 @@ try {
     try {
         $acad_col = ($result === 'win') ? 'correct_answers' : 'wrong_answers';
         $pdo->prepare("INSERT INTO academic_stats (user_id, mode, $acad_col) VALUES (?, 'hangman', 1) 
-                       ON CONFLICT (user_id, mode) DO UPDATE SET $acad_col = academic_stats.$acad_col + 1")->execute([$uid]);
+                       ON DUPLICATE KEY UPDATE $acad_col = $acad_col + 1")->execute([$uid]);
     } catch(Exception $e) {}
 
     echo json_encode([
         'status' => 'success',
         'total_score' => $score,
+        'xp' => $xp,
         'wins' => $wins,
         'losses' => $losses,
         'current_streak' => $streak
     ]);
+
+    // Check for achievements
+    checkAchievements($pdo, $uid);
 
 } catch (Throwable $e) {
     echo json_encode(['status' => 'error', 'message' => 'System Error: ' . $e->getMessage()]);

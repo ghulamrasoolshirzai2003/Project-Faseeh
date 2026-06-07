@@ -1,5 +1,7 @@
 <?php
+session_start();
 header('Content-Type: application/json');
+require_once '../includes/config.php';
 
 $data = json_decode(file_get_contents("php://input"), true);
 $text = $data['text'] ?? '';
@@ -9,8 +11,8 @@ if (empty(trim($text))) {
     exit;
 }
 
-$geminiKey = getenv("GEMINI_API_KEY");
-$openRouterKey = getenv("OPENROUTER_API_KEY");
+$geminiKey = GEMINI_API_KEY;
+$openRouterKey = OPENROUTER_API_KEY;
 
 $prompt = "You are Professor Faseeh, a PhD Arabic tutor. Analyze the following student writing: \"$text\". 
 Return ONLY a JSON object: {\"status\": \"success\" or \"warning\", \"message\": \"Your feedback\"}";
@@ -26,21 +28,17 @@ if (!$result) {
 if ($result) {
     echo $result;
 } else {
-    // Show the actual error to the user for diagnosis
-    $debug = $_SESSION['last_ai_error'] ?? 'No specific error caught.';
-    echo json_encode(['status' => 'error', 'message' => "Professor is offline. [Server Error: $debug]"]);
+    // Show a user-friendly error message
+    echo json_encode(['status' => 'error', 'message' => "Professor Faseeh is resting right now. Please try again in a moment."]);
 }
 
 function callAI($prompt, $provider, $key) {
     if ($provider == "gemini") {
-        $url = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=" . $key;
+        $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" . $key;
         $payload = ["contents" => [["parts" => [["text" => $prompt]]]]];
     } else {
         $url = "https://openrouter.ai/api/v1/chat/completions";
-        $payload = [
-            "model" => "google/gemini-flash-1.5", 
-            "messages" => [["role" => "user", "content" => $prompt]]
-        ];
+        $payload = ["model" => "google/gemini-flash-1.5", "messages" => [["role" => "user", "content" => $prompt]]];
     }
 
     $ch = curl_init($url);
@@ -50,8 +48,8 @@ function callAI($prompt, $provider, $key) {
     curl_setopt($ch, CURLOPT_HTTPHEADER, $provider == "gemini" ? ['Content-Type: application/json'] : ['Content-Type: application/json', 'Authorization: Bearer ' . $key]);
     
     // --- CRITICAL FIXES FOR SHARED HOSTING ---
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); 
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true); 
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
     curl_setopt($ch, CURLOPT_TIMEOUT, 15);
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
     

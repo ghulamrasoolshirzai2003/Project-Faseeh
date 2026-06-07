@@ -1,5 +1,6 @@
 <?php
 header('Content-Type: application/json');
+require_once '../includes/config.php';
 
 $word = $_GET['word'] ?? '';
 if (empty($word)) {
@@ -7,8 +8,8 @@ if (empty($word)) {
     exit;
 }
 
-$geminiKey = getenv("GEMINI_API_KEY");
-$openRouterKey = getenv("OPENROUTER_API_KEY");
+$geminiKey = GEMINI_API_KEY;
+$openRouterKey = OPENROUTER_API_KEY;
 
 $prompt = "Analyze the Arabic word: \"$word\". Provide its linguistic Root (3 letters), its Primary English Meaning, and its Grammar (Noun/Verb/Participle). 
 Return ONLY a JSON object: {\"root\": \"...\", \"mean\": \"...\", \"grammar\": \"...\"}";
@@ -41,8 +42,8 @@ function callAI($prompt, $provider, $key) {
     curl_setopt($ch, CURLOPT_HTTPHEADER, $provider == "gemini" ? ['Content-Type: application/json'] : ['Content-Type: application/json', 'Authorization: Bearer ' . $key]);
     
     // --- HOSTING FIXES ---
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
     curl_setopt($ch, CURLOPT_TIMEOUT, 15);
     
     $response = curl_exec($ch);
@@ -52,7 +53,12 @@ function callAI($prompt, $provider, $key) {
     if ($http === 200) {
         $data = json_decode($response, true);
         $raw = ($provider == "gemini") ? ($data['candidates'][0]['content']['parts'][0]['text'] ?? '') : ($data['choices'][0]['message']['content'] ?? '');
-        return preg_replace('/```json|```/', '', $raw);
+        
+        // Extract only the JSON block between curly braces
+        if (preg_match('/\{.*\}/s', $raw, $matches)) {
+            return $matches[0];
+        }
+        return preg_replace('/```(json)?/', '', $raw);
     }
     return null;
 }

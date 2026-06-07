@@ -60,9 +60,7 @@ try {
         json_encode($lesson_data['metadata'])
     ]);
     
-    $newId = ($pdo->getAttribute(PDO::ATTR_DRIVER_NAME) == 'pgsql') 
-        ? $pdo->lastInsertId('academy_lessons_id_seq') 
-        : $pdo->lastInsertId();
+    $newId = $pdo->lastInsertId();
     echo json_encode(['status' => 'success', 'lesson_id' => $newId, 'title' => $lesson_data['title']]);
 
 } catch (Exception $e) {

@@ -1,0 +1,61 @@
+{
+  "name": "Faseeh — Master Arabic",
+  "short_name": "Faseeh",
+  "description": "The world's most immersive Arabic learning platform. Games, AI tutors, Quranic Arabic, and real dialects.",
+  "start_url": "/dashboard.php",
+  "display": "standalone",
+  "background_color": "#0e0c1e",
+  "theme_color": "#f5a623",
+  "orientation": "portrait-primary",
+  "lang": "en",
+  "categories": ["education", "language"],
+  "icons": [
+    { "src": "/assets/icons/icon-72.png",   "sizes": "72x72",   "type": "image/png", "purpose": "any maskable" },
+    { "src": "/assets/icons/icon-96.png",   "sizes": "96x96",   "type": "image/png", "purpose": "any maskable" },
+    { "src": "/assets/icons/icon-128.png",  "sizes": "128x128", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/assets/icons/icon-144.png",  "sizes": "144x144", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/assets/icons/icon-152.png",  "sizes": "152x152", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/assets/icons/icon-192.png",  "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/assets/icons/icon-384.png",  "sizes": "384x384", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/assets/icons/icon-512.png",  "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "screenshots": [
+    {
+      "src": "/assets/screenshots/dashboard.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "label": "Faseeh Dashboard"
+    },
+    {
+      "src": "/assets/screenshots/play.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "label": "Game Zone"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Play Hangman",
+      "short_name": "Hangman",
+      "description": "Jump straight into Hangman",
+      "url": "/play.php?game=hangman",
+      "icons": [{ "src": "/assets/icons/shortcut-hangman.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Daily Challenge",
+      "short_name": "Daily",
+      "description": "Today's word challenge",
+      "url": "/dashboard.php#daily",
+      "icons": [{ "src": "/assets/icons/shortcut-daily.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Quranic Arabic",
+      "short_name": "Quran",
+      "description": "Quranic Arabic track",
+      "url": "/quran.php",
+      "icons": [{ "src": "/assets/icons/shortcut-quran.png", "sizes": "96x96" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}
